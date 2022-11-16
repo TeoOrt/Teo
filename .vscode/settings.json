@@ -1,0 +1,10 @@
+{
+    "idf.adapterTargetName": "esp32",
+    "idf.portWin": "COM3",
+    "idf.flashType": "UART",
+    "files.associations": {
+        "wifi.h": "c",
+        "stat.h": "c",
+        "spiffs.h": "c"
+    }
+}
