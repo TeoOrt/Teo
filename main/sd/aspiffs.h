@@ -1,5 +1,5 @@
-#ifndef _SPIFFS_H
-#define _SPIFFS_H
+#ifndef _ASPIFFS_H_
+#define _ASPIFFS_H_
 
 
 #include <stdio.h>
@@ -15,5 +15,4 @@
 
 void spiffs();
 
-
-#endif _SPIFFS_H
+#endif 

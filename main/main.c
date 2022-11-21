@@ -18,7 +18,8 @@
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
-#include "inc/spiffs.h"
+#include "sd/aspiffs.h"
+#include "ws/ws.h"
 /* The examples use WiFi configuration that you can set via project configuration menu
 
    If you'd rather not, just change the below entries to strings with
@@ -41,6 +42,7 @@ static EventGroupHandle_t s_wifi_event_group;
 
 
 static int s_retry_num = 0;
+
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -133,6 +135,17 @@ void wifi_init_sta(void)
     vEventGroupDelete(s_wifi_event_group);
 }
 
+
+
+static const httpd_uri_t ws_uri_handler_options = {
+
+        .is_websocket = true,               // Mandatory: set to `true` to handler websocket protocol
+        .handle_ws_control_frames = false,  // Optional: set to `true` for the handler to receive control packets, too
+        .supported_subprotocol = "chat",    // Optional: set supported subprotocol for this handler
+};
+
+
+
 void app_main(void)
 {
     //Initialize NVS
@@ -152,9 +165,28 @@ First init wifi connection
 6.repeat
 
 */
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
+    /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
+     * Read "Establishing Wi-Fi or Ethernet Connection" section in
+     * examples/protocols/README.md for more information about this function.
+     */
+    ESP_ERROR_CHECK(example_connect());
+static httpd_handle_t server = NULL;
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     wifi_init_sta();
-    spiffs();
+#ifdef CONFIG_EXAMPLE_CONNECT_WIFI
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
+#endif // CONFIG_EXAMPLE_CONNECT_WIFI
+#ifdef CONFIG_EXAMPLE_CONNECT_ETHERNET
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &connect_handler, &server));
+    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ETHERNET_EVENT_DISCONNECTED, &disconnect_handler, &server));
+#endif // CONFIG_EXAMPLE_CONNECT_ETHERNET
+
+    /* Start the server for the first time */
+    server = start_webserver();
+
 }

@@ -5,6 +5,11 @@
     "files.associations": {
         "wifi.h": "c",
         "stat.h": "c",
-        "spiffs.h": "c"
-    }
+        "spiffs.h": "c",
+        "string.h": "c",
+        "stdio.h": "c"
+    },
+    "idf.openOcdConfigs": [
+        "board/esp32-wrover-kit-3.3v.cfg"
+    ]
 }
