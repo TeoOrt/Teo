@@ -15,7 +15,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-
+#include "esp_http_server.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
 #include "sd/aspiffs.h"
@@ -144,6 +144,20 @@ static const httpd_uri_t ws_uri_handler_options = {
         .supported_subprotocol = "chat",    // Optional: set supported subprotocol for this handler
 };
 
+esp_err_t my_uri_handler(httpd_req_t* req)
+{
+    int j =0;
+    if( j == 0){
+        return ESP_OK;
+    }
+    else{
+        return ESP_FAIL;
+    }
+
+}
+
+
+
 
 
 void app_main(void)
@@ -172,21 +186,20 @@ First init wifi connection
      * Read "Establishing Wi-Fi or Ethernet Connection" section in
      * examples/protocols/README.md for more information about this function.
      */
-    ESP_ERROR_CHECK(example_connect());
 static httpd_handle_t server = NULL;
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     wifi_init_sta();
-#ifdef CONFIG_EXAMPLE_CONNECT_WIFI
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
-#endif // CONFIG_EXAMPLE_CONNECT_WIFI
-#ifdef CONFIG_EXAMPLE_CONNECT_ETHERNET
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &connect_handler, &server));
-    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ETHERNET_EVENT_DISCONNECTED, &disconnect_handler, &server));
-#endif // CONFIG_EXAMPLE_CONNECT_ETHERNET
 
     /* Start the server for the first time */
-    server = start_webserver();
+    // server = start_webserver();
+
+    httpd_uri_t my_uri {
+    .uri      = "/ws",
+    .method   = HTTPD_GET,
+    .handler  = my_uri_handler,
+    .user_ctx = NULL
+};
+
 
 }
